@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 
 import { dawaAutocomplete } from 'dawa-autocomplete2';
-import './App.css';
+import './dawa-autocomplete.css';
 import { useForm } from 'react-hook-form';
 import { ReactComponent as LogoSvg } from './logo.svg';
 import axios from 'axios';
