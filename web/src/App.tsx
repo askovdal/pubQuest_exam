@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import './dawa-autocomplete.css';
+
 import {
   Button,
   chakra,
@@ -17,12 +17,12 @@ import {
   NumberInputStepper,
   withDefaultColorScheme,
 } from '@chakra-ui/react';
-
-import { dawaAutocomplete } from 'dawa-autocomplete2';
-import './dawa-autocomplete.css';
-import { useForm } from 'react-hook-form';
-import { ReactComponent as LogoSvg } from './logo.svg';
 import axios from 'axios';
+import { dawaAutocomplete } from 'dawa-autocomplete2';
+import { useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+
+import { ReactComponent as LogoSvg } from './logo.svg';
 
 interface Form {
   bars: number;
@@ -54,7 +54,10 @@ export const App = () => {
     // TODO: Show loading indicator while getting route
     axios.get('/api/route').then(({ data }) => {
       console.log(data);
-      setIframeDoc(data);
+
+      if (typeof data === 'string') {
+        setIframeDoc(data);
+      }
     }, console.error);
   });
 

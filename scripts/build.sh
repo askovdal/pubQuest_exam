@@ -10,4 +10,5 @@ cd ..
 cd web || exit
 npm i
 npm run build
+npm prune --production
 cd ..
