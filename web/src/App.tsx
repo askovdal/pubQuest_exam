@@ -63,7 +63,7 @@ export const App = () => {
 
       <main>
         <chakra.form onSubmit={onSubmit} p={6} m="auto" maxW="800px">
-          <chakra.div display="flex" gap={5}>
+          <chakra.div display="flex" flexWrap="wrap" gap={5}>
             <FormControl isInvalid={!!errors.bars} maxW="350px">
               <FormLabel>Number of bars</FormLabel>
               <NumberInput min={0} max={10}>
