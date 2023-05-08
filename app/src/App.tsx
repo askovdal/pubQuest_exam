@@ -25,6 +25,7 @@ import { ReactComponent as LogoSvg } from './logo.svg';
 interface Form {
   bars: number;
   start: string;
+  timeSpent: string;
 }
 
 export const App = () => {
@@ -42,12 +43,15 @@ export const App = () => {
   }, []);
 
   const onSubmit = handleSubmit((data) => {
+    // TODO: Right now "data.bars" isnt a number but a string, fix that
     console.log(data);
   });
 
   const { ref: startRefCallback, ...startRegisterRest } = register('start', {
     required: true,
   });
+
+  // TODO: Use tss-react
 
   return (
     <ChakraProvider theme={theme}>
@@ -60,7 +64,7 @@ export const App = () => {
       <main>
         <chakra.form onSubmit={onSubmit} p={6} m="auto" maxW="800px">
           <chakra.div display="flex" gap={5}>
-            <FormControl isInvalid={!!errors.bars}>
+            <FormControl isInvalid={!!errors.bars} maxW="350px">
               <FormLabel>Number of bars</FormLabel>
               <NumberInput min={0} max={10}>
                 <NumberInputField {...register('bars', { required: true })} />
@@ -69,10 +73,10 @@ export const App = () => {
                   <NumberDecrementStepper />
                 </NumberInputStepper>
               </NumberInput>
-              <FormErrorMessage>Choose a number</FormErrorMessage>
+              <FormErrorMessage>Choose a number of bars</FormErrorMessage>
             </FormControl>
 
-            <FormControl isInvalid={!!errors.start}>
+            <FormControl isInvalid={!!errors.start} maxW="350px">
               <FormLabel>Start address</FormLabel>
               <Input
                 {...startRegisterRest}
@@ -83,10 +87,17 @@ export const App = () => {
               />
               <FormErrorMessage>Choose a start address</FormErrorMessage>
             </FormControl>
+
+            <FormControl isInvalid={!!errors.timeSpent} maxW="350px">
+              <FormLabel>Time spent at each bar</FormLabel>
+              <Input {...register('timeSpent', { required: true })} />
+              <FormErrorMessage>
+                Write the time spent at each bear
+              </FormErrorMessage>
+            </FormControl>
           </chakra.div>
 
           {/* TODO: Walking or cycling */}
-          {/* TODO: Time spent at each bar */}
 
           <Button type="submit" mt={4}>
             Calculate route
