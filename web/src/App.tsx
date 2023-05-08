@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Button,
   chakra,
   ChakraProvider,
   extendTheme,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -21,6 +22,7 @@ import { dawaAutocomplete } from 'dawa-autocomplete2';
 import './App.css';
 import { useForm } from 'react-hook-form';
 import { ReactComponent as LogoSvg } from './logo.svg';
+import axios from 'axios';
 
 interface Form {
   bars: number;
@@ -38,13 +40,22 @@ export const App = () => {
     formState: { errors },
   } = useForm<Form>({ shouldFocusError: false });
 
+  const [iframeDoc, setIframeDoc] = useState<string>();
+
   useEffect(() => {
+    // TODO: Validate input field, make sure a DAWA address has been chosen
     dawaAutocomplete(startRef.current);
   }, []);
 
   const onSubmit = handleSubmit((data) => {
     // TODO: Right now "data.bars" isnt a number but a string, fix that
     console.log(data);
+
+    // TODO: Show loading indicator while getting route
+    axios.get('/api/route').then(({ data }) => {
+      console.log(data);
+      setIframeDoc(data);
+    }, console.error);
   });
 
   const { ref: startRefCallback, ...startRegisterRest } = register('start', {
@@ -61,8 +72,8 @@ export const App = () => {
         </chakra.div>
       </chakra.header>
 
-      <main>
-        <chakra.form onSubmit={onSubmit} p={6} m="auto" maxW="800px">
+      <chakra.main p={6} m="auto" maxW="800px">
+        <chakra.form onSubmit={onSubmit}>
           <chakra.div display="flex" flexWrap="wrap" gap={5}>
             <FormControl isInvalid={!!errors.bars} maxW="350px">
               <FormLabel>Number of bars</FormLabel>
@@ -103,7 +114,20 @@ export const App = () => {
             Calculate route
           </Button>
         </chakra.form>
-      </main>
+
+        {!!iframeDoc && (
+          <Flex justify="center" mt={12}>
+            <chakra.iframe
+              title="Calculated route"
+              srcDoc={iframeDoc}
+              w="100%"
+              height="100%"
+              maxW="800px"
+              maxH="800px"
+            />
+          </Flex>
+        )}
+      </chakra.main>
     </ChakraProvider>
   );
 };
