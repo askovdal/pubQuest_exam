@@ -1,8 +1,6 @@
 from flask import Flask, send_from_directory
 import os
 
-print(os.getcwd())
-
 # The relative path for where the React app is located
 build_dir = "../web/build"
 
