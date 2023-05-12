@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, request
 
 # The relative path for where the React app is located
 build_dir = "../web/build"
@@ -18,4 +18,5 @@ def serve_cra():
 # React app, which displays it on the frontend.
 @app.route("/api/route")
 def create_route():
+    print(request.args.to_dict())
     return "<p>Route goes here</p>"

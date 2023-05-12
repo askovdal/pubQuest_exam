@@ -15,6 +15,13 @@ import {
   NumberInput,
   NumberInputField,
   NumberInputStepper,
+  Radio,
+  RadioGroup,
+  Slider,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderTrack,
+  Stack,
   withDefaultColorScheme,
 } from '@chakra-ui/react';
 import axios from 'axios';
@@ -24,10 +31,9 @@ import { useForm } from 'react-hook-form';
 
 import { ReactComponent as LogoSvg } from './logo.svg';
 
-interface Form {
-  bars: number;
+interface InputFields {
   start: string;
-  timeSpent: string;
+  bars: number;
 }
 
 export const App = () => {
@@ -38,34 +44,47 @@ export const App = () => {
     handleSubmit,
     register,
     formState: { errors },
-  } = useForm<Form>({ shouldFocusError: false });
+    clearErrors,
+  } = useForm<InputFields>({ shouldFocusError: false });
 
   const [iframeDoc, setIframeDoc] = useState<string>();
+  const [timeSpent, setTimeSpent] = useState(25);
+  const [transportation, setTransportation] = useState<string>('walking');
+  const [addressSelected, setAddressSelected] = useState(false);
 
   useEffect(() => {
-    // TODO: Validate input field, make sure a DAWA address has been chosen
-    dawaAutocomplete(startRef.current);
+    dawaAutocomplete(startRef.current, {
+      adgangsadresserOnly: true,
+      minLength: 1,
+      select: () => {
+        setAddressSelected(true);
+        clearErrors('start');
+      },
+    });
   }, []);
 
   const onSubmit = handleSubmit((data) => {
-    // TODO: Right now "data.bars" isnt a number but a string, fix that
-    console.log(data);
-
     // TODO: Show loading indicator while getting route
-    axios.get('/api/route').then(({ data }) => {
-      console.log(data);
+    axios
+      .get('/api/route', { params: { ...data, timeSpent, transportation } })
+      .then(({ data }) => {
+        console.log(data);
 
-      if (typeof data === 'string') {
-        setIframeDoc(data);
-      }
-    }, console.error);
+        if (typeof data === 'string') {
+          setIframeDoc(data);
+        }
+      }, console.error);
   });
 
   const { ref: startRefCallback, ...startRegisterRest } = register('start', {
     required: true,
+    validate: () => addressSelected || 'Pick a start address from the list',
   });
 
   // TODO: Use tss-react
+
+  const minBars = 2;
+  const maxBars = 10;
 
   return (
     <ChakraProvider theme={theme}>
@@ -78,18 +97,6 @@ export const App = () => {
       <chakra.main p={6} m="auto" maxW="800px">
         <chakra.form onSubmit={onSubmit}>
           <chakra.div display="flex" flexWrap="wrap" gap={5}>
-            <FormControl isInvalid={!!errors.bars} maxW="350px">
-              <FormLabel>Number of bars</FormLabel>
-              <NumberInput min={0} max={10}>
-                <NumberInputField {...register('bars', { required: true })} />
-                <NumberInputStepper>
-                  <NumberIncrementStepper />
-                  <NumberDecrementStepper />
-                </NumberInputStepper>
-              </NumberInput>
-              <FormErrorMessage>Choose a number of bars</FormErrorMessage>
-            </FormControl>
-
             <FormControl isInvalid={!!errors.start} maxW="350px">
               <FormLabel>Start address</FormLabel>
               <Input
@@ -98,20 +105,64 @@ export const App = () => {
                   startRefCallback(e);
                   startRef.current = e;
                 }}
+                onChange={() => setAddressSelected(false)}
               />
-              <FormErrorMessage>Choose a start address</FormErrorMessage>
+              <FormErrorMessage>
+                {errors.start?.message || 'Choose a start address'}
+              </FormErrorMessage>
             </FormControl>
 
-            <FormControl isInvalid={!!errors.timeSpent} maxW="350px">
+            <FormControl isInvalid={!!errors.bars} maxW="350px">
+              <FormLabel>Number of bars</FormLabel>
+              <NumberInput min={minBars} max={maxBars}>
+                <NumberInputField
+                  {...register('bars', {
+                    required: true,
+                    setValueAs: (value) =>
+                      Math.min(Math.max(Number(value), minBars), maxBars),
+                  })}
+                />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+              <FormErrorMessage>Choose a number of bars</FormErrorMessage>
+            </FormControl>
+
+            <FormControl maxW="350px">
               <FormLabel>Time spent at each bar</FormLabel>
-              <Input {...register('timeSpent', { required: true })} />
+              <Slider
+                min={1}
+                max={60}
+                defaultValue={timeSpent}
+                onChange={setTimeSpent}
+                width="95%"
+              >
+                <SliderTrack>
+                  <SliderFilledTrack />
+                </SliderTrack>
+                <SliderThumb
+                  fontSize="xs"
+                  boxSize="45px"
+                  children={`${timeSpent} min`}
+                />
+              </Slider>
               <FormErrorMessage>
                 Write the time spent at each bear
               </FormErrorMessage>
             </FormControl>
-          </chakra.div>
 
-          {/* TODO: Walking or cycling */}
+            <div>
+              <FormLabel>Mode of transportation</FormLabel>
+              <RadioGroup onChange={setTransportation} value={transportation}>
+                <Stack>
+                  <Radio value="walking">Walking</Radio>
+                  <Radio value="biking">Biking</Radio>
+                </Stack>
+              </RadioGroup>
+            </div>
+          </chakra.div>
 
           <Button type="submit" mt={4}>
             Calculate route
