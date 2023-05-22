@@ -49,7 +49,7 @@ export const App = () => {
 
   const [iframeDoc, setIframeDoc] = useState<string>();
   const [timeSpent, setTimeSpent] = useState(25);
-  const [transportation, setTransportation] = useState<string>('walking');
+  const [transportation, setTransportation] = useState<string>('walk');
   const [addressSelected, setAddressSelected] = useState(false);
 
   useEffect(() => {
@@ -157,8 +157,8 @@ export const App = () => {
               <FormLabel>Mode of transportation</FormLabel>
               <RadioGroup onChange={setTransportation} value={transportation}>
                 <Stack>
-                  <Radio value="walking">Walking</Radio>
-                  <Radio value="biking">Biking</Radio>
+                  <Radio value="walk">Walking</Radio>
+                  <Radio value="bike">Biking</Radio>
                 </Stack>
               </RadioGroup>
             </div>
@@ -174,10 +174,9 @@ export const App = () => {
             <chakra.iframe
               title="Calculated route"
               srcDoc={iframeDoc}
+              height="800px"
               w="100%"
-              height="100%"
               maxW="800px"
-              maxH="800px"
             />
           </Flex>
         )}
