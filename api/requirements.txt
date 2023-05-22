@@ -1,5 +1,5 @@
-Flask~=2.3.2
+Flask>=2.2
 Gunicorn
 scikit-learn
-osmnx~=1.3.0
-folium~=0.14.0
+osmnx>=1.1
+folium>=0.14
