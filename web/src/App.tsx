@@ -51,6 +51,7 @@ export const App = () => {
   const [timeSpent, setTimeSpent] = useState(25);
   const [transportation, setTransportation] = useState<string>('walk');
   const [addressSelected, setAddressSelected] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     dawaAutocomplete(startRef.current, {
@@ -63,9 +64,9 @@ export const App = () => {
     });
   }, []);
 
-  const onSubmit = handleSubmit((data) => {
-    // TODO: Show loading indicator while getting route
-    axios
+  const onSubmit = handleSubmit(async (data) => {
+    setLoading(true);
+    await axios
       .get('/api/route', { params: { ...data, timeSpent, transportation } })
       .then(({ data }) => {
         console.log(data);
@@ -74,6 +75,8 @@ export const App = () => {
           setIframeDoc(data);
         }
       }, console.error);
+
+    setLoading(false);
   });
 
   const { ref: startRefCallback, ...startRegisterRest } = register('start', {
@@ -164,7 +167,7 @@ export const App = () => {
             </div>
           </chakra.div>
 
-          <Button type="submit" mt={4}>
+          <Button type="submit" isLoading={loading} mt={4}>
             Calculate route
           </Button>
         </chakra.form>
