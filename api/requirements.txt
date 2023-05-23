@@ -1,2 +1,5 @@
-Flask
+Flask>=2.2
 Gunicorn
+scikit-learn
+osmnx>=1.1
+folium>=0.14

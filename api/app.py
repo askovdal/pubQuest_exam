@@ -1,4 +1,5 @@
 from flask import Flask, send_from_directory, request
+from get_route import pubcrawl_route
 
 # The relative path for where the React app is located
 build_dir = "../web/build"
@@ -18,5 +19,7 @@ def serve_cra():
 # React app, which displays it on the frontend.
 @app.route("/api/route")
 def create_route():
-    print(request.args.to_dict())
-    return "<p>Route goes here</p>"
+    args = request.args.to_dict()
+    print(args)
+    route = pubcrawl_route(args['start'], int(args['bars']), args['transportation'])
+    return route.get_root().render()

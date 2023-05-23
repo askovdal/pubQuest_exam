@@ -49,8 +49,9 @@ export const App = () => {
 
   const [iframeDoc, setIframeDoc] = useState<string>();
   const [timeSpent, setTimeSpent] = useState(25);
-  const [transportation, setTransportation] = useState<string>('walking');
+  const [transportation, setTransportation] = useState<string>('walk');
   const [addressSelected, setAddressSelected] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     dawaAutocomplete(startRef.current, {
@@ -63,9 +64,9 @@ export const App = () => {
     });
   }, []);
 
-  const onSubmit = handleSubmit((data) => {
-    // TODO: Show loading indicator while getting route
-    axios
+  const onSubmit = handleSubmit(async (data) => {
+    setLoading(true);
+    await axios
       .get('/api/route', { params: { ...data, timeSpent, transportation } })
       .then(({ data }) => {
         console.log(data);
@@ -74,6 +75,8 @@ export const App = () => {
           setIframeDoc(data);
         }
       }, console.error);
+
+    setLoading(false);
   });
 
   const { ref: startRefCallback, ...startRegisterRest } = register('start', {
@@ -157,14 +160,14 @@ export const App = () => {
               <FormLabel>Mode of transportation</FormLabel>
               <RadioGroup onChange={setTransportation} value={transportation}>
                 <Stack>
-                  <Radio value="walking">Walking</Radio>
-                  <Radio value="biking">Biking</Radio>
+                  <Radio value="walk">Walking</Radio>
+                  <Radio value="bike">Biking</Radio>
                 </Stack>
               </RadioGroup>
             </div>
           </chakra.div>
 
-          <Button type="submit" mt={4}>
+          <Button type="submit" isLoading={loading} mt={4}>
             Calculate route
           </Button>
         </chakra.form>
@@ -174,10 +177,9 @@ export const App = () => {
             <chakra.iframe
               title="Calculated route"
               srcDoc={iframeDoc}
+              height="800px"
               w="100%"
-              height="100%"
               maxW="800px"
-              maxH="800px"
             />
           </Flex>
         )}

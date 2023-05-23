@@ -4,4 +4,4 @@
 set -e
 
 cd api || exit
-gunicorn app:app
+gunicorn -w 4 -t 120 app:app
