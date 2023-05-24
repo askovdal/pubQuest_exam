@@ -185,5 +185,5 @@ def pubcrawl_route(start_address, no_bars, network_type = "walk", time_spent):
         
     selected_pubs = pubs_plot.query('name in @names')
     plot = plot_route(G, pub_crawl, address_point, selected_pubs)
-    total_time = travel_time + time_spent*no_bars
+    total_time = round(travel_time/60) + time_spent*no_bars
     return plot, total_time
