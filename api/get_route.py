@@ -110,7 +110,7 @@ def plot_route(G, pub_crawl, address_point, selected_pubs):
     mnw.add_to(m)
     
     #add title to the map:
-    m.get_root().html.add_child(folium.Element(title_html))
+    # m.get_root().html.add_child(folium.Element(title_html))
 
     # plotting the route between bars: 
     r1 = folium.FeatureGroup(name = "Route", show = True)
@@ -130,7 +130,7 @@ def plot_route(G, pub_crawl, address_point, selected_pubs):
     return m
 
 
-def pubcrawl_route(start_address, no_bars, network_type = "walk", time_spent):
+def pubcrawl_route(start_address, no_bars, time_spent, network_type = "walk"):
     address_point =  ox.geocode(start_address)
 
     #find all pubs in area
@@ -186,4 +186,4 @@ def pubcrawl_route(start_address, no_bars, network_type = "walk", time_spent):
     selected_pubs = pubs_plot.query('name in @names')
     plot = plot_route(G, pub_crawl, address_point, selected_pubs)
     total_time = round(travel_time/60) + time_spent*no_bars
-    return plot, total_time
+    return plot, total_time, travel_time/60
