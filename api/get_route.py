@@ -118,7 +118,7 @@ def plot_route(G, pub_crawl, address_point, selected_pubs):
     for route in pub_crawl:
         for node in route:
             rloc.append((G.nodes[node]["y"], G.nodes[node]["x"]))
-    my_polyline = folium.PolyLine(locations = rloc, weight = 5, color = "green").add_to(r1)
+    my_polyline = folium.PolyLine(locations = rloc, weight = 5, color = "red").add_to(r1)
     r1.add_to(m)
 
 
@@ -130,44 +130,51 @@ def plot_route(G, pub_crawl, address_point, selected_pubs):
     return m
 
 
-def pubcrawl_route(start_address, no_bars, network_type="walk", time_spent):
-    address_point = ox.geocode(start_address)
+def pubcrawl_route(start_address, no_bars, network_type = "walk", time_spent):
+    address_point =  ox.geocode(start_address)
 
-    # find all pubs in area
-    tags = {"amenity": ["pub", "bar"]}
+    #find all pubs in area
+    tags = {'amenity': ['pub', 'bar']}
     pubs = ox.geometries_from_point(address_point, tags=tags, dist=2000)
-
-    # Making a copy of pubs with original lat long values to be used for plotting. (epsg:25823 does not work with Folium)
-    pubs_plot = pubs.set_index("name")[["geometry"]]
-
-    # Some pubs might be polygons, but we need them as points, so extract the centroids from the geometries
-    pubs = pubs.to_crs("EPSG:25832")
-    pubs = pubs.set_index("name")[["geometry"]]
+    
+    #Making a copy of pubs with original lat long values to be used for plotting. (epsg:25823 does not work with Folium)
+    pubs_plot = pubs.to_crs('EPSG:4326')
+    pubs_plot.geometry = pubs_plot.centroid
+    
+    #polygons to points, by extracting the centroids
+    pubs = pubs.to_crs('EPSG:25832')
+    pubs = pubs.set_index('name')[['geometry']]
     pubs.geometry = pubs.centroid
+        
 
-    # create a network from input address
+    #create a network from input address
     G = ox.graph_from_address(
-        address=start_address, dist=2000, dist_type="network", network_type=network_type
-    )
-
-    address_node = ox.nearest_nodes(G=G, Y=address_point[0], X=address_point[1])
-
-    # adding speed depending on network
-    if network_type == "walk":
+    address=start_address,
+    dist=2000,
+    dist_type="network",
+    network_type= network_type)
+    
+    
+    address_node = ox.nearest_nodes(G=G, Y = address_point[0], X = address_point[1])
+    
+    #adding speed depending on network
+    if network_type == "walk":  
         speed = 5  # km per hour
-    if network_type == "bike":
+    if network_type == "bike":  
         speed = 15  # km per hour
     for u, v, data in G.edges(data=True):
-        data["speed_kph"] = speed
+        data['speed_kph'] = speed
     G = ox.add_edge_travel_times(G)
+    
 
-    G_projected = ox.project_graph(G, to_crs="EPSG:25832")
-
+    G_projected = ox.project_graph(G, to_crs='EPSG:25832')
+    
     start = address_node
     pub_crawl = []
     visited = []
     travel_time = 0
     names = []
+    # find route by selected the nearest bar from start point
     for i in range(no_bars):
         route, bar, time, name = make_route(start, pubs, visited, G_projected)
         start = bar
@@ -175,10 +182,8 @@ def pubcrawl_route(start_address, no_bars, network_type="walk", time_spent):
         visited.append(bar)
         travel_time += time
         names.append(name)
-
-    # fig, ax = ox.plot_graph_routes(G_projected, pub_crawl, node_size=0)
-    selected_pubs = pubs_plot[pubs_plot.index.isin(names)]
-    total_time = round(travel_time / 60) + time_spent*no_bars
-
+        
+    selected_pubs = pubs_plot.query('name in @names')
     plot = plot_route(G, pub_crawl, address_point, selected_pubs)
+    total_time = travel_time + time_spent*no_bars
     return plot, total_time
