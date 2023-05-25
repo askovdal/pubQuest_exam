@@ -9,6 +9,7 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
+  Heading,
   Input,
   NumberDecrementStepper,
   NumberIncrementStepper,
@@ -36,6 +37,12 @@ interface InputFields {
   bars: number;
 }
 
+interface GetRoute {
+  html: string;
+  travel: number;
+  total: number;
+}
+
 export const App = () => {
   const theme = extendTheme(withDefaultColorScheme({ colorScheme: 'blue' }));
 
@@ -48,10 +55,14 @@ export const App = () => {
   } = useForm<InputFields>({ shouldFocusError: false });
 
   const [iframeDoc, setIframeDoc] = useState<string>();
-  const [timeSpent, setTimeSpent] = useState(25);
+  const [timeSpent, setTimeSpent] = useState(35);
   const [transportation, setTransportation] = useState<string>('walk');
   const [addressSelected, setAddressSelected] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [times, setTimes] = useState<Pick<GetRoute, 'total' | 'travel'>>({
+    total: 0,
+    travel: 0,
+  });
 
   useEffect(() => {
     dawaAutocomplete(startRef.current, {
@@ -67,13 +78,12 @@ export const App = () => {
   const onSubmit = handleSubmit(async (data) => {
     setLoading(true);
     await axios
-      .get('/api/route', { params: { ...data, timeSpent, transportation } })
-      .then(({ data }) => {
-        console.log(data);
-
-        if (typeof data === 'string') {
-          setIframeDoc(data);
-        }
+      .get<GetRoute>('/api/route', {
+        params: { ...data, timeSpent, transportation },
+      })
+      .then(({ data: { html, total, travel } }) => {
+        setIframeDoc(html);
+        setTimes({ total, travel });
       }, console.error);
 
     setLoading(false);
@@ -136,7 +146,7 @@ export const App = () => {
             <FormControl maxW="350px">
               <FormLabel>Time spent at each bar</FormLabel>
               <Slider
-                min={1}
+                min={10}
                 max={60}
                 defaultValue={timeSpent}
                 onChange={setTimeSpent}
@@ -173,7 +183,9 @@ export const App = () => {
         </chakra.form>
 
         {!!iframeDoc && (
-          <Flex justify="center" mt={12}>
+          <Flex justify="center" direction="column" mt={12}>
+            <Heading size="md">Travel time: {formatTime(times.travel)}</Heading>
+            <Heading size="md" mb={2}>Total time: {formatTime(times.total)}</Heading>
             <chakra.iframe
               title="Calculated route"
               srcDoc={iframeDoc}
@@ -186,4 +198,16 @@ export const App = () => {
       </chakra.main>
     </ChakraProvider>
   );
+};
+
+const formatTime = (totalMinutes: number) => {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  let formattedTime = `${minutes.toFixed(0)} minutes`;
+  if (hours) {
+    formattedTime = `${hours.toFixed(0)} hours ${formattedTime}`;
+  }
+
+  return formattedTime;
 };
