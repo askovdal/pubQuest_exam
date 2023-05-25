@@ -94,8 +94,6 @@ export const App = () => {
     validate: () => addressSelected || 'Pick a start address from the list',
   });
 
-  // TODO: Use tss-react
-
   const minBars = 2;
   const maxBars = 10;
 
@@ -185,7 +183,9 @@ export const App = () => {
         {!!iframeDoc && (
           <Flex justify="center" direction="column" mt={12}>
             <Heading size="md">Travel time: {formatTime(times.travel)}</Heading>
-            <Heading size="md" mb={2}>Total time: {formatTime(times.total)}</Heading>
+            <Heading size="md" mb={2}>
+              Total time: {formatTime(times.total)}
+            </Heading>
             <chakra.iframe
               title="Calculated route"
               srcDoc={iframeDoc}

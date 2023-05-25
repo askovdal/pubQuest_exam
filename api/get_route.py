@@ -1,8 +1,5 @@
 import osmnx as ox
 import folium
-import osmnx.settings
-
-osmnx.settings.use_cache = False
 
 
 # Function takes the start position and find the nearest pub that is not in 'visited'
@@ -55,10 +52,6 @@ def plot_route(G, pub_crawl, address_point, selected_pubs):
             opacity=1,
         ),
     }
-    loc = "Pubcrawl Route"
-    title_html = """<h3 align="center" style="font-size:16px"><b>{}</b></h3>""".format(
-        loc
-    )
 
     # create a map object
     m = folium.Map(
@@ -70,7 +63,11 @@ def plot_route(G, pub_crawl, address_point, selected_pubs):
     # creating pub/bars markers
     for pub, row in selected_pubs.iterrows():
         name = str(row["name"])
-        website = row["website"] if isinstance(row["website"], str) else "Website not available"
+        website = (
+            row["website"]
+            if isinstance(row["website"], str)
+            else "Website not available"
+        )
         opening_hours = (
             row["opening_hours"]
             if isinstance(row["opening_hours"], str)
@@ -127,13 +124,10 @@ def plot_route(G, pub_crawl, address_point, selected_pubs):
             mloc.append(loc)
 
     # create a "PolyLine" of all edges and add it to the "mnw" FeatureGroup:
-    my_polyline = folium.PolyLine(locations=mloc, weight=1, color="gray").add_to(mnw)
+    folium.PolyLine(locations=mloc, weight=1, color="gray").add_to(mnw)
 
     # Add the feature group to the map:
     mnw.add_to(m)
-
-    # add title to the map:
-    # m.get_root().html.add_child(folium.Element(title_html))
 
     # plotting the route between bars:
     r1 = folium.FeatureGroup(name="Route", show=True)
@@ -141,13 +135,12 @@ def plot_route(G, pub_crawl, address_point, selected_pubs):
     for route in pub_crawl:
         for node in route:
             rloc.append((G.nodes[node]["y"], G.nodes[node]["x"]))
-    my_polyline = folium.PolyLine(locations=rloc, weight=5, color="red").add_to(r1)
+    folium.PolyLine(locations=rloc, weight=5, color="red").add_to(r1)
     r1.add_to(m)
 
-    ### Layer control
+    # Layer control
     folium.LayerControl().add_to(m)
 
-    # m.save("pubcrawl_lab.html")
     return m
 
 
