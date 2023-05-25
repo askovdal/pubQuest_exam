@@ -3,3 +3,4 @@ Gunicorn
 scikit-learn
 osmnx>=1.1
 folium>=0.14
+urllib3==1.26.6

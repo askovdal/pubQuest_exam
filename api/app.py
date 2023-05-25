@@ -1,4 +1,5 @@
 from flask import Flask, send_from_directory, request
+
 from get_route import pubcrawl_route
 
 # The relative path for where the React app is located
@@ -21,5 +22,13 @@ def serve_cra():
 def create_route():
     args = request.args.to_dict()
     print(args)
-    route = pubcrawl_route(args['start'], int(args['bars']), args['transportation'])
-    return route.get_root().render()
+
+    route, total_time, travel_time = pubcrawl_route(
+        args["start"], int(args["bars"]), int(args["timeSpent"]), args["transportation"]
+    )
+
+    return {
+        "html": route.get_root().render(),
+        "travel": travel_time,
+        "total": total_time,
+    }

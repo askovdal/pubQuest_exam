@@ -1,5 +1,8 @@
 import osmnx as ox
 import folium
+import osmnx.settings
+
+osmnx.settings.use_cache = False
 
 
 # Function takes the start position and find the nearest pub that is not in 'visited'
@@ -67,14 +70,18 @@ def plot_route(G, pub_crawl, address_point, selected_pubs):
     # creating pub/bars markers
     for pub, row in selected_pubs.iterrows():
         name = str(row["name"])
-        website = row["website"]
-        opening_hours = row["opening_hours"]
+        website = row["website"] if isinstance(row["website"], str) else "Not available"
+        opening_hours = (
+            row["opening_hours"]
+            if isinstance(row["opening_hours"], str)
+            else "Not available"
+        )
 
         tooltip = str(row["name"])
 
         pop_html = folium.Html(
             f"""<p style="text-align: center;"><span style="font-family: Didot, serif; font-size: 21px;">{name}</span></p>
-        <p style="text-align: center;"><a href={website} target="_blank" title="{website} Website"><span style="font-family: Didot, serif; font-size: 17px;"
+        <p style="text-align: center;"><a href={website} target="_blank" title="{website} Website"><span style="font-family: Didot, serif; font-size: 17px;">
         {website}</span></a></p>
         <p style="text-align: center;"><span style="font-family: Didot, serif; font-size: 17px;">Opening Hours: <br> {opening_hours}</span></a></p>
         """,
