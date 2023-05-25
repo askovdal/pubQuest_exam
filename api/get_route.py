@@ -70,7 +70,7 @@ def plot_route(G, pub_crawl, address_point, selected_pubs):
     # creating pub/bars markers
     for pub, row in selected_pubs.iterrows():
         name = str(row["name"])
-        website = row["website"] if isinstance(row["website"], str) else "Not available"
+        website = row["website"] if isinstance(row["website"], str) else "Website not available"
         opening_hours = (
             row["opening_hours"]
             if isinstance(row["opening_hours"], str)
