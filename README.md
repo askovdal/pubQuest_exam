@@ -5,7 +5,7 @@
 Tested using Python 3.11.3 and 3.9.6
 
 ### macOS and Linux
-Clone the repository, cd into it and write the following commands:
+Clone the repository, cd into it and run the following commands:
 ```shell
 cd api
 python3 -m venv .venv
@@ -17,7 +17,7 @@ flask run
 After a couple of seconds, the app should be visible on http://127.0.0.1:5000.
 
 ### Windows
-Clone the repository, cd into it and write the following commands:
+Clone the repository, cd into it and run the following commands:
 ```shell
 cd api
 python3 -m venv .venv
